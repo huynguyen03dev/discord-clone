@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { currentProfile } from "@/lib/current-profile";
 
 
-export async function PATCH(req: NextRequest, { params }: { params: { serverId: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ serverId: string }> }) {
   try {
+    const { serverId } = await params;
     const profile = await currentProfile();
 
     if (!profile) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { serverId } = await params;
     const { name, imageUrl } = await req.json();
 
     const server = await db.server.update({
@@ -32,7 +32,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { serverId: 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { serverId: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ serverId: string }> }) {
   try {
     const { serverId } = await params;
     const profile = await currentProfile();

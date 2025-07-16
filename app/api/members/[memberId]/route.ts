@@ -1,8 +1,8 @@
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function PATCH(req: Request, { params }: { params: { memberId: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ memberId: string }> }) {
   try {
     const { memberId } = await params;
     const { role } = await req.json();
@@ -61,7 +61,7 @@ export async function PATCH(req: Request, { params }: { params: { memberId: stri
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { memberId: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ memberId: string }> }) {
   try {
     const { memberId } = await params;
     const { searchParams } = new URL(req.url);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, FormEvent, useRef } from "react";
+import { useEffect, useState, FormEvent, useRef, useCallback } from "react";
 import Script from "next/script";
 import ReactMarkdown from 'react-markdown';
 
@@ -30,7 +30,7 @@ const Page = () => {
 	const [useStreaming, setUseStreaming] = useState<boolean>(true);
 	const responseRef = useRef<HTMLDivElement>(null);
 
-	const handlePuterQuery = async (e?: FormEvent) => {
+	const handlePuterQuery = useCallback(async (e?: FormEvent) => {
 		if (e) e.preventDefault();
 		
 		if (!isScriptLoaded) {
@@ -81,14 +81,14 @@ const Page = () => {
 			setIsLoading(false);
 			setIsStreaming(false);
 		}
-	};
+	}, [isScriptLoaded, prompt, useStreaming]);
 
 	// Auto-run the query when script is loaded
 	useEffect(() => {
 		if (isScriptLoaded) {
 			handlePuterQuery();
 		}
-	}, [isScriptLoaded]);
+	}, [isScriptLoaded, handlePuterQuery]);
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">

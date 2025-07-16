@@ -11,7 +11,7 @@ import {
 
 
 import { useModal } from "@/hooks/use-modal-store";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,7 @@ export const LeaveServerModal = () => {
   const onConfirm = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.patch(`/api/servers/${server?.id}/leave`);
+      /*const response = */await axios.patch(`/api/servers/${server?.id}/leave`);
 
       onClose();
       router.refresh();
