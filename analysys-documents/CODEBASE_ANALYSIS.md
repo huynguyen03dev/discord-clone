@@ -2,13 +2,13 @@
 
 ## 📋 Executive Summary
 
-This is a **Discord Clone** application built with modern web technologies, now in **mid-development stage**. The project has progressed significantly with core features like server/channel management UIs, invite systems, and foundational real-time messaging models. It maintains a solid architecture but requires completion of real-time communication, voice/video, and advanced UI polish to reach MVP status.
+This is a **Discord Clone** application built with modern web technologies, now in **mid-development stage**. The project has progressed significantly with core features like server/channel management UIs, invite systems, foundational real-time messaging models, and direct messaging conversations. It maintains a solid architecture but requires completion of real-time communication, voice/video, and advanced UI polish to reach MVP status.
 
 **Overall Assessment: 🟢 MID-STAGE - Strong Progress, On Track for MVP**
 
 **Progress Overview**:
-- Implemented: 60% (Auth, DB, Core UI, Server/Channel Basics)
-- Partial: 30% (Real-Time Messaging, Invites)
+- Implemented: 65% (Auth, DB, Core UI, Server/Channel Basics, DM Conversations)
+- Partial: 25% (Real-Time Messaging, Invites)
 - Missing: 10% (Voice/Video, Advanced Permissions)
 
 ---
@@ -22,7 +22,7 @@ This is a **Discord Clone** application built with modern web technologies, now 
 - **Authentication**: Clerk (v6.22.0)
 - **Database**: PostgreSQL with Prisma ORM (v6.10.1)
 - **UI Components**: Radix UI + Custom Components (e.g., modals with react-hook-form)
-- **State Management**: Zustand (v5.0.6) - Recently added for global state
+- **State Management**: Zustand (v5.0.6) - Used for global modal state
 - **File Handling**: Uploadthing (v7.7.3) - For images and files
 - **Forms/Validation**: React Hook Form (v7.58.1) + Zod (v3.25.67)
 - **Other**: Axios for API calls, Query-String for params, UUID for IDs
@@ -75,7 +75,11 @@ discord-clone/
    - Channel creation/management (text channels partial)
    - Invite system with unique codes
 
-5. **Development Environment**
+5. **Direct Messaging**
+   - Conversation utils for creating/finding DMs
+   - DM pages with chat headers
+
+6. **Development Environment**
    - TypeScript with ESLint
    - Next.js config (e.g., image domains for optimization)
 
@@ -83,7 +87,6 @@ discord-clone/
 1. **Real-Time Communication**
    - Message models and persistence in DB
    - Basic conversation utils (lib/conversation.ts)
-   - Socket.io dependencies added, but full WebSocket integration pending
 
 2. **User Interface**
    - Server sidebar and channel lists
@@ -92,11 +95,11 @@ discord-clone/
 
 ### ❌ Missing Core Features
 1. **Advanced Channel System**
-   - Voice/video channels
+   - Voice/video channels functionality (UI placeholders exist)
    - Full permissions/editing
 
 2. **Advanced Real-Time**
-   - Live messaging with Socket.io
+   - Live messaging (e.g., via WebSockets)
    - File sharing in chats
 
 3. **Voice/Video and Permissions**
@@ -122,7 +125,7 @@ discord-clone/
    - Zod validation in forms (e.g., create-server modal)
 
 4. **State & Forms**
-   - Zustand for global state
+   - Zustand for global state (used in modal store)
    - React Hook Form with Zod resolvers for efficient handling
 
 ### Areas for Improvement 🔧
@@ -131,7 +134,7 @@ discord-clone/
    - Recommendation: Add error.tsx in layouts and try-catch in API routes
 
 2. **State Management**
-   - Zustand added, but not yet used globally—integrate for real-time state
+   - Zustand is used for modals; expand for real-time state
 
 3. **Testing**
    - Still absent; no Jest or integration tests
@@ -175,33 +178,33 @@ model Message {
 
 ## 🚀 Development Roadmap
 
-### Phase 1: Core Infrastructure (Mostly Complete - 1 Week Remaining)
-1. **Polish Modals & Forms** (Effort: Low) - Add edge cases to create-server/invite modals.
-2. **Server Dashboard** (Effort: Medium) - Enhance sidebar with dynamic updates.
+### Phase 1: Core Infrastructure (Complete)
+1. **Polish Modals & Forms** (Done)
+2. **Server Dashboard** (Done)
 
-### Phase 2: Communication Features (Current Focus - 2-3 Weeks)
-1. **Full Message System** (Effort: High) - Integrate Socket.io for live chats, persistence via Prisma.
+### Phase 2: Communication Features (In Progress - 2 Weeks)
+1. **Full Message System** (Effort: High) - Integrate WebSockets for live chats, persistence via Prisma.
 2. **Channel Enhancements** (Effort: Medium) - Add edit/delete, permissions.
 
-Dependencies: Complete Zustand integration for state.
+Dependencies: Expand Zustand for real-time state.
 
 ### Phase 3: Advanced Features (Next Sprint - 3-4 Weeks)
 1. **Voice/Video Chat** (Effort: High) - WebRTC with channel types.
 2. **Permissions & Moderation** (Effort: Medium) - Role overrides, bans.
 
-**Total Estimated Time to MVP**: 6-8 weeks (down from 9-13 due to progress).
+**Total Estimated Time to MVP**: 5-6 weeks.
 
 ---
 
 ## 🔧 Technical Recommendations
 
 ### Immediate Actions (Next Sprint)
-1. **Integrate Real-Time** - Add Socket.io client/server in a new lib/socket.ts; connect to message routes.
-2. **Add Dependencies if Needed** - Socket.io-client (already suggested); consider React Query for data fetching.
+1. **Integrate Real-Time** - Add WebSocket library (e.g., Socket.io) and integrate in lib/socket.ts; connect to message routes.
+2. **Add Dependencies if Needed** - Socket.io-client; consider React Query for data fetching.
 3. **Implement Global Errors** - Add error boundaries in app/layout.tsx.
 
 ### Architecture Improvements
-1. **State Management** - Use Zustand for real-time (e.g., store active channels).
+1. **State Management** - Expand Zustand usage for real-time (e.g., store active channels, messages).
 2. **Performance** - Add dynamic imports and Suspense to sidebars.
 3. **File Uploads** - Extend Uploadthing for message attachments.
 
@@ -231,7 +234,7 @@ Dependencies: Complete Zustand integration for state.
 ### Performance Optimizations Needed
 1. **Database** - Add caching (e.g., React cache() for queries).
 2. **Frontend** - Memoize lists (e.g., channels); use react-window for long chats.
-3. **Real-Time** - Throttle Socket.io events; paginate messages.
+3. **Real-Time** - Once integrated, throttle WebSocket events; paginate messages.
 
 ---
 
@@ -295,6 +298,6 @@ The project has strong foundations and momentum, with key features like server/c
 
 ---
 
-*Analysis updated by Senior Software Engineer & Project Manager on [Current Date, e.g., October 10, 2023]*
+*Analysis updated by Senior Software Engineer & Project Manager on October 15, 2024*
 *Project Status: Mid-Development Stage*
-*Recommendation: Accelerate real-time features; schedule a code review sprint.*
+*Recommendation: Prioritize real-time messaging integration; conduct a code review for recent DM features.*
