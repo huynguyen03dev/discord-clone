@@ -8,181 +8,264 @@ import { UploadDropzone } from "@/lib/uploadthing";
 
 import "@uploadthing/react/styles.css"
 
+// Types
+type FileType = 'image' | 'pdf' | 'video' | 'audio' | 'unknown';
+
+interface FileMetadata {
+  name: string;
+  type: string;
+  size: number;
+}
+
 interface FileUploadProps {
   onChange: (url?: string) => void;
   value: string;
   endpoint: "messageFile" | "serverImage";
 }
 
-const FileUpload = ({ onChange, endpoint, value }: FileUploadProps) => {
-  // State to store file metadata from UploadThing
-  const [fileMetadata, setFileMetadata] = useState<any>(null);
+interface FileDisplayProps {
+  value: string;
+  fileName: string;
+  onRemove: () => void;
+}
 
-  // More robust file type detection using both URL and stored metadata
-  const getFileType = (url: string, metadata?: any) => {
-    if (!url) return null;
+// Constants
+const MIME_TYPE_MAP: Record<string, FileType> = {
+  'application/pdf': 'pdf',
+  'video/': 'video',
+  'audio/': 'audio',
+  'image/': 'image',
+};
 
-    // First, try to use stored metadata from UploadThing response
-    if (metadata?.type) {
-      if (metadata.type.includes('pdf')) return 'pdf';
-      if (metadata.type.includes('video')) return 'video';
-      if (metadata.type.includes('audio')) return 'audio';
-      if (metadata.type.includes('image')) return 'image';
-    }
+const FILE_EXTENSIONS: Record<string, FileType> = {
+  // PDF
+  pdf: 'pdf',
+  // Video
+  mp4: 'video',
+  webm: 'video',
+  ogg: 'video',
+  mov: 'video',
+  avi: 'video',
+  // Audio
+  mp3: 'audio',
+  wav: 'audio',
+  m4a: 'audio',
+  aac: 'audio',
+  // Images
+  jpg: 'image',
+  jpeg: 'image',
+  png: 'image',
+  gif: 'image',
+  webp: 'image',
+  svg: 'image',
+};
 
-    // Fallback: Extract file extension from URL
-    const extension = url.split('.').pop()?.toLowerCase();
+// Utility Functions
+const getFileTypeFromMimeType = (mimeType: string): FileType | null => {
+  for (const [mime, type] of Object.entries(MIME_TYPE_MAP)) {
+    if (mimeType.includes(mime)) return type;
+  }
+  return null;
+};
 
-    // Check for PDF
-    if (extension === 'pdf') return 'pdf';
+const getFileTypeFromUrl = (url: string): FileType | null => {
+  if (!url) return null;
 
-    // Check for video formats
-    if (['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(extension || '')) return 'video';
+  const extension = url.split('.').pop()?.toLowerCase();
+  if (!extension) return null;
 
-    // Check for audio formats
-    if (['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(extension || '')) return 'audio';
+  return FILE_EXTENSIONS[extension] || null;
+};
 
-    // Check for image formats
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '')) return 'image';
+const getFileTypeFromUrlPatterns = (url: string): FileType | null => {
+  if (url.includes('pdf')) return 'pdf';
+  if (url.includes('video') || url.includes('mp4')) return 'video';
+  if (url.includes('audio') || url.includes('mp3')) return 'audio';
+  return null;
+};
 
-    // Additional fallback - check if URL contains type indicators
-    if (url.includes('pdf')) return 'pdf';
-    if (url.includes('video') || url.includes('mp4')) return 'video';
-    if (url.includes('audio') || url.includes('mp3')) return 'audio';
+const determineFileType = (
+  metadata: FileMetadata | null,
+  url: string,
+  endpoint: string
+): FileType => {
+  // Priority 1: Use metadata MIME type
+  if (metadata?.type) {
+    const typeFromMime = getFileTypeFromMimeType(metadata.type);
+    if (typeFromMime) return typeFromMime;
+  }
 
-    // If serverImage endpoint, assume it's an image
-    if (endpoint === 'serverImage') return 'image';
+  // Priority 2: Use URL extension
+  const typeFromUrl = getFileTypeFromUrl(url);
+  if (typeFromUrl) return typeFromUrl;
 
-    return 'unknown';
+  // Priority 3: Use URL patterns
+  const typeFromPatterns = getFileTypeFromUrlPatterns(url);
+  if (typeFromPatterns) return typeFromPatterns;
+
+  // Priority 4: Endpoint-based fallback
+  if (endpoint === 'serverImage') return 'image';
+
+  return 'unknown';
+};
+
+const getDisplayFileName = (metadata: FileMetadata | null, url: string, fileType: FileType): string => {
+  if (metadata?.name) return metadata.name;
+
+  const urlFileName = url.split('/').pop();
+  if (urlFileName && urlFileName.includes('.')) return urlFileName;
+
+  // Fallback names
+  const fallbackNames: Record<FileType, string> = {
+    pdf: 'PDF File',
+    video: 'Video File',
+    audio: 'Audio File',
+    image: 'Image File',
+    unknown: 'Unknown File',
   };
 
-  // Reset metadata when value changes to empty
+  return fallbackNames[fileType];
+};
+
+// Reusable Components
+const RemoveButton = ({ onClick }: { onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="bg-rose-500 text-white p-1 rounded-full absolute -top-2 -right-2 shadow-sm hover:bg-rose-600 transition-colors"
+    type="button"
+    aria-label="Remove file"
+  >
+    <X className="h-4 w-4" />
+  </button>
+);
+
+const ImageDisplay = ({ value, onRemove }: FileDisplayProps) => (
+  <div className="relative h-20 w-20">
+    <Image
+      fill
+      src={value}
+      alt="Uploaded image"
+      className="rounded-full object-cover"
+    />
+    <RemoveButton onClick={onRemove} />
+  </div>
+);
+
+const FileDisplay = ({ value, fileName, onRemove }: FileDisplayProps) => (
+  <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10 border border-border/50">
+    <FileIcon className="h-10 w-10 fill-indigo-200 stroke-indigo-400 flex-shrink-0" />
+    <a
+      href={value}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline truncate flex-1 min-w-0"
+      title={fileName}
+    >
+      {fileName}
+    </a>
+    <RemoveButton onClick={onRemove} />
+  </div>
+);
+
+const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
+  <div className="p-4 border border-red-200 rounded-md bg-red-50 dark:bg-red-900/20">
+    <p className="text-sm text-red-600 dark:text-red-400 mb-2">
+      Upload Error: {error}
+    </p>
+    <button
+      onClick={onRetry}
+      className="text-xs text-red-700 dark:text-red-300 hover:underline"
+      type="button"
+    >
+      Try again
+    </button>
+  </div>
+);
+
+const FileUpload = ({ onChange, endpoint, value }: FileUploadProps) => {
+  // State management
+  const [fileMetadata, setFileMetadata] = useState<FileMetadata | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset metadata and error when value changes
   useEffect(() => {
     if (!value) {
       setFileMetadata(null);
+      setError(null);
     }
   }, [value]);
 
-  const fileType = getFileType(value, fileMetadata);
+  // Determine file type and display name
+  const fileType = determineFileType(fileMetadata, value, endpoint);
+  const fileName = getDisplayFileName(fileMetadata, value, fileType);
 
-  // Image display
+  // Handle file removal
+  const handleRemove = () => {
+    onChange("");
+    setFileMetadata(null);
+    setError(null);
+  };
+
+  // Handle retry after error
+  const handleRetry = () => {
+    setError(null);
+  };
+
+  // Show error state
+  if (error) {
+    return <ErrorDisplay error={error} onRetry={handleRetry} />;
+  }
+
+  // Display uploaded file based on type
   if (value && fileType === 'image') {
-    return (
-      <div className="relative h-20 w-20">
-        <Image
-          fill
-          src={value}
-          alt="Upload"
-          className="rounded-full"
-        />
-        <button
-          onClick={() => onChange("")}
-          className="bg-rose-500 text-white p-1 rounded-full absolute top-0 right-0 shadow-sm"
-          type="button"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    );
+    return <ImageDisplay value={value} fileName={fileName} onRemove={handleRemove} />;
   }
 
-  // PDF display
-  if (value && fileType === 'pdf') {
-    const fileName = fileMetadata?.name || value.split('/').pop() || 'PDF File';
-
-    return (
-      <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10">
-        <FileIcon className="h-10 w-10 fill-indigo-200 stroke-indigo-400" />
-        <a
-          href={value}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline truncate"
-        >
-          {fileName}
-        </a>
-        <button
-          onClick={() => onChange("")}
-          className="bg-rose-500 text-white p-1 rounded-full absolute -top-2 -right-2 shadow-sm"
-          type="button"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    );
+  if (value && (fileType === 'pdf' || fileType === 'video' || fileType === 'audio')) {
+    return <FileDisplay value={value} fileName={fileName} onRemove={handleRemove} />;
   }
 
-  // Video display (if you want to add video support)
-  if (value && fileType === 'video') {
-    const fileName = fileMetadata?.name || value.split('/').pop() || 'Video File';
 
-    return (
-      <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10">
-        <FileIcon className="h-10 w-10 fill-indigo-200 stroke-indigo-400" />
-        <a
-          href={value}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline truncate"
-        >
-          {fileName}
-        </a>
-        <button
-          onClick={() => onChange("")}
-          className="bg-rose-500 text-white p-1 rounded-full absolute -top-2 -right-2 shadow-sm"
-          type="button"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    );
-  }
-
-  // Audio display (if you want to add audio support)
-  if (value && fileType === 'audio') {
-    const fileName = fileMetadata?.name || value.split('/').pop() || 'Audio File';
-
-    return (
-      <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10">
-        <FileIcon className="h-10 w-10 fill-indigo-200 stroke-indigo-400" />
-        <a
-          href={value}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline truncate"
-        >
-          {fileName}
-        </a>
-        <button
-          onClick={() => onChange("")}
-          className="bg-rose-500 text-white p-1 rounded-full absolute -top-2 -right-2 shadow-sm"
-          type="button"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    );
-  }
 
   // Upload dropzone (when no file is uploaded)
   return (
     <UploadDropzone
       endpoint={endpoint}
       onClientUploadComplete={(res) => {
-        console.log("[UPLOAD_COMPLETE]", res?.[0]); // Debug log to see available properties
-        const file = res?.[0] as any;
+        try {
+          console.log("[UPLOAD_COMPLETE]", res?.[0]);
 
-        // Store file metadata for type detection
-        setFileMetadata({
-          name: file?.name,
-          type: file?.type,
-          size: file?.size
-        });
+          const file = res?.[0];
+          if (!file) {
+            throw new Error("No file received from upload");
+          }
 
-        onChange(file?.ufsUrl || file?.url); // Use ufsUrl first (recommended), fallback to url
+          // Validate required properties
+          const fileUrl = (file as any)?.ufsUrl || (file as any)?.url;
+          if (!fileUrl) {
+            throw new Error("No file URL received");
+          }
+
+          // Store file metadata with validation
+          const metadata: FileMetadata = {
+            name: (file as any)?.name || 'Unknown File',
+            type: (file as any)?.type || 'application/octet-stream',
+            size: (file as any)?.size || 0,
+          };
+
+          setFileMetadata(metadata);
+          setError(null);
+          onChange(fileUrl);
+
+        } catch (err) {
+          console.error("[UPLOAD_COMPLETE_ERROR]", err);
+          setError(err instanceof Error ? err.message : "Upload processing failed");
+        }
       }}
       onUploadError={(error: Error) => {
-        console.log("[UPLOAD_ERROR]", error);
+        console.error("[UPLOAD_ERROR]", error);
+        setError(error.message || "Upload failed");
+        setFileMetadata(null);
       }}
     />
   );

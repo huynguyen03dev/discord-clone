@@ -1,6 +1,6 @@
 import { Menu } from "lucide-react"
 
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "./ui/button"
 import { NavigationSidebar } from "./navigations/navigation-sidebar"
 import { ServerSidebar } from "./server/server-sidebar"
@@ -18,6 +18,10 @@ export const MobileToggle = ({ serverId }: MobileToggleProps) => {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="p-0 flex gap-0 [&>button]:hidden">
+        {/* Visually hidden title for screen readers */}
+        <SheetTitle className="sr-only">
+          Navigation Menu
+        </SheetTitle>
         <div className="w-full h-full flex">
           <div className="w-[72px] h-full">
             <NavigationSidebar />
