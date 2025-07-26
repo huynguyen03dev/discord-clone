@@ -48,12 +48,13 @@ const ChannelIdPage = async ({ params }: ChannelIdPageProps) => {
       <div className="flex-1">
         Future Messages
       </div>
-      <ChatInput 
+      <ChatInput
         name={channel.name}
         type="channel"
-        apiUrl={`/api/socket/messages`}
+        apiUrl="/api/socket/messages"
         query={{
           channelId: channelId,
+          serverId: serverId,
         }}
       />
     </div>
