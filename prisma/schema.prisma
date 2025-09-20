@@ -77,6 +77,14 @@ enum ChannelType {
   VIDEO
 }
 
+enum FileKind {
+  IMAGE
+  VIDEO
+  AUDIO
+  PDF
+  UNKNOWN
+}
+
 model Channel {
   id String @id @default(uuid())
   name String
@@ -101,6 +109,10 @@ model Message {
   id String @id @default(uuid())
   content String @db.Text
   fileUrl String? @db.Text
+  fileName String? @db.Text
+  fileMimeType String?
+  fileSize Int?
+  fileKind FileKind?
 
   memberId String
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)

@@ -4,6 +4,18 @@ import { NextApiResponseServerIo } from "@/types";
 import { currentProfilePages } from "@/lib/current-profile-pages";
 import { db } from "@/lib/db";
 
+import { FileKind as PrismaFileKind } from "@prisma/client";
+
+const inferKindFromMime = (mime?: string): PrismaFileKind => {
+  const m = (mime || "").toLowerCase();
+  if (m.startsWith("image/")) return PrismaFileKind.IMAGE;
+  if (m.startsWith("video/")) return PrismaFileKind.VIDEO;
+  if (m.startsWith("audio/")) return PrismaFileKind.AUDIO;
+  if (m === "application/pdf" || m.endsWith("/pdf")) return PrismaFileKind.PDF;
+  return PrismaFileKind.UNKNOWN;
+};
+
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponseServerIo
@@ -12,6 +24,7 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  // GET
   try {
     console.log("[MESSAGES_POST] Starting request processing");
     console.log("[MESSAGES_POST] Request body:", req.body);
@@ -22,6 +35,10 @@ export default async function handler(
 
     const { content, fileUrl } = req.body;
     const { serverId, channelId } = req.query;
+
+    const { fileName, fileMimeType, fileSize } = req.body;
+
+    const fileKind = inferKindFromMime(fileMimeType);
 
     if (!profile) {
       console.log("[MESSAGES_POST] Error: No profile found");
@@ -42,7 +59,7 @@ export default async function handler(
       console.log("[MESSAGES_POST] Error: No content");
       return res.status(400).json({ error: "Content is missing" });
     }
-    
+
     const server = await db.server.findFirst({
       where: {
         id: serverId as string,
@@ -73,7 +90,7 @@ export default async function handler(
     }
 
     const member = server.members.find((member) => member.profileId === profile.id);
-    
+
     if (!member) {
       return res.status(404).json({ error: "Member not found" });
     }
@@ -82,6 +99,10 @@ export default async function handler(
       data: {
         content,
         fileUrl,
+        fileName,
+        fileMimeType,
+        fileSize,
+        fileKind,
         channelId: channelId as string,
         memberId: member.id,
       },

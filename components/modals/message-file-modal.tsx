@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import qs from "query-string";
 
+import { useState } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -24,10 +26,11 @@ import {
 
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/file-upload";
-import { useRouter } from "next/navigation";
 import { useModal } from "@/hooks/use-modal-store";
 
 const formSchema = z.object({
+
+
   fileUrl: z.string().min(1, {
     message: "Attachment is required",
   }),
@@ -36,20 +39,26 @@ const formSchema = z.object({
 
 export const MessageFileModal = () => {
   const { isOpen, onClose, type, data } = useModal();
-  const router = useRouter();
 
   const isModalOpen = isOpen && type === "messageFile";
-  
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fileUrl: "",
     },
   });
-  
+
   const isLoading = form.formState.isSubmitting;
   const { apiUrl, query } = data;
-  
+
+  const [uploadInfo, setUploadInfo] = useState<{
+    fileName?: string;
+    fileMimeType?: string;
+    fileSize?: number;
+  } | null>(null);
+
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const url = qs.stringifyUrl({
@@ -60,6 +69,9 @@ export const MessageFileModal = () => {
       await axios.post(url, {
         ...values,
         content: values.fileUrl,
+        fileName: uploadInfo?.fileName,
+        fileMimeType: uploadInfo?.fileMimeType,
+        fileSize: uploadInfo?.fileSize,
       });
 
       handleClose();
@@ -67,7 +79,7 @@ export const MessageFileModal = () => {
       console.log(error);
     }
   }
-  
+
   const handleClose = () => {
     form.reset();
     onClose();
@@ -94,10 +106,14 @@ export const MessageFileModal = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <FileUpload 
+                        <FileUpload
                           endpoint="messageFile"
                           value={field.value}
-                          onChange={field.onChange} 
+                          onChange={(url) => {
+                            field.onChange(url);
+                            if (!url) setUploadInfo(null);
+                          }}
+                          onUploadInfo={setUploadInfo}
                         />
                       </FormControl>
                     </FormItem>
