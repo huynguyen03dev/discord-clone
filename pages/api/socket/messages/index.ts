@@ -26,10 +26,6 @@ export default async function handler(
 
   // GET
   try {
-    console.log("[MESSAGES_POST] Starting request processing");
-    console.log("[MESSAGES_POST] Request body:", req.body);
-    console.log("[MESSAGES_POST] Request query:", req.query);
-
     const profile = await currentProfilePages(req);
     console.log("[MESSAGES_POST] Profile:", profile ? "Found" : "Not found");
 
@@ -41,22 +37,18 @@ export default async function handler(
     const fileKind = inferKindFromMime(fileMimeType);
 
     if (!profile) {
-      console.log("[MESSAGES_POST] Error: No profile found");
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     if (!serverId) {
-      console.log("[MESSAGES_POST] Error: No serverId");
       return res.status(400).json({ error: "Server ID is missing" });
     }
 
     if (!channelId) {
-      console.log("[MESSAGES_POST] Error: No channelId");
       return res.status(400).json({ error: "Channel ID is missing" });
     }
 
     if (!content) {
-      console.log("[MESSAGES_POST] Error: No content");
       return res.status(400).json({ error: "Content is missing" });
     }
 

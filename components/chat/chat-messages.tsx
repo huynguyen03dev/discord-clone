@@ -7,6 +7,7 @@ import { Loader2, ServerCrash } from "lucide-react";
 import { Fragment } from "react";
 import { format } from "date-fns";
 import { ChatItem } from "./chat-item";
+import { useChatSocket } from "@/hooks/use-chat-socket";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -40,6 +41,8 @@ export const ChatMessages = ({
   type
 }: ChatMessagesProps) => {
   const queryKey = `chat:${chatId}`;
+  const addKey = `chat:${chatId}:messages`;
+  const updateKey = `chat:${chatId}:messages:update`;
 
   const {
     data,
@@ -53,6 +56,8 @@ export const ChatMessages = ({
     paramKey,
     paramValue
   });
+
+  useChatSocket({ queryKey, addKey, updateKey });
 
   if (status === "pending") {
     return (
@@ -75,11 +80,6 @@ export const ChatMessages = ({
       </div>
     )
   }
-
-  console.log("🔍 Full data:", data);
-  console.log("🔍 Pages:", data?.pages);
-  console.log("🔍 First page:", data?.pages?.[0]);
-  console.log("🔍 First message:", data?.pages?.[0]?.items?.[0]);
 
   return (
     <div className="flex-1 flex flex-col py-4 overflow-y-auto">

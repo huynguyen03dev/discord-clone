@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { SmileIcon } from "lucide-react";
+import { Smile } from "lucide-react";
 import Picker, { Theme } from "emoji-picker-react";
 import { useTheme } from "next-themes";
 
@@ -14,12 +14,17 @@ interface EmojiPickerProps {
 }
 
 export const EmojiPicker = ({ onChange }: EmojiPickerProps) => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <SmileIcon className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition" />
+        <button 
+          className="h-[24px] w-[24px] flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
+          aria-label="Add emoji"
+        >
+          <Smile className="h-5 w-5 text-zinc-500 group-hover:text-zinc-600 dark:text-zinc-400 dark:group-hover:text-zinc-300 transition" />
+        </button>
       </PopoverTrigger>
       <PopoverContent
         side="right"
@@ -28,8 +33,9 @@ export const EmojiPicker = ({ onChange }: EmojiPickerProps) => {
       >
         <Picker
           onEmojiClick={(emojiData) => onChange(emojiData.emoji)}
-          theme={theme as Theme}
-          />
+          theme={resolvedTheme as Theme}
+          lazyLoadEmojis={true}
+        />
       </PopoverContent>
     </Popover>
   );

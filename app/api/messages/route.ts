@@ -72,7 +72,7 @@ export async function GET(
     }
 
     return NextResponse.json({
-      items: messages.reverse(),
+      items: messages,
       nextCursor,
     });
   } catch (error) {
