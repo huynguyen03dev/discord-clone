@@ -383,6 +383,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 🤖 Automated PR Reviews
+
+This repository uses [Qodo AI PR-Agent](https://github.com/Codium-ai/pr-agent) for automated code reviews on pull requests.
+
 ## 🙏 Acknowledgments
 
 - **[Discord](https://discord.com/)** - For the inspiration and design reference
