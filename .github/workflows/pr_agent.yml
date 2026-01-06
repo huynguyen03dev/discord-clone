@@ -23,6 +23,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC__KEY: ${{ secrets.ANTHROPIC_KEY }}
           ANTHROPIC__API_BASE: ${{ secrets.ANTHROPIC_API_BASE }}
-          LITELLM_ANTHROPIC_DISABLE_URL_SUFFIX: "true"
           CONFIG__MODEL: "anthropic/gemini-3-pro-preview"
           CONFIG__FALLBACK_MODELS: "[\"anthropic/zai/glm-4.7\"]"
