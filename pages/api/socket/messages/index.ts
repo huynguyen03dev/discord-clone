@@ -24,7 +24,6 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // GET
   try {
     const profile = await currentProfilePages(req);
     console.log("[MESSAGES_POST] Profile:", profile ? "Found" : "Not found");

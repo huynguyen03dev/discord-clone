@@ -1,8 +1,8 @@
 # Discord Clone
 
-A modern, full-featured Discord clone built with Next.js 15, featuring real-time messaging, voice channels, server management, and more. This application replicates the core functionality of Discord with a clean, responsive interface.
+A modern, full-featured Discord clone built with Next.js 16, featuring real-time messaging, voice channels, server management, and more. This application replicates the core functionality of Discord with a clean, responsive interface.
 
-![Discord Clone](https://img.shields.io/badge/Next.js-15.3.4-black?style=for-the-badge&logo=next.js)
+![Discord Clone](https://img.shields.io/badge/Next.js-16.0.10-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.10-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)
@@ -42,7 +42,7 @@ A modern, full-featured Discord clone built with Next.js 15, featuring real-time
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **[Next.js 15.3.4](https://nextjs.org/)** - React framework with App Router
+- **[Next.js 16.0.10](https://nextjs.org/)** - React framework with App Router
 - **[React 19](https://react.dev/)** - UI library with latest features
 - **[TypeScript 5.x](https://www.typescriptlang.org/)** - Type-safe development
 - **[Tailwind CSS 4.1.10](https://tailwindcss.com/)** - Utility-first CSS framework
@@ -51,16 +51,23 @@ A modern, full-featured Discord clone built with Next.js 15, featuring real-time
 ### Backend & Database
 - **[PostgreSQL 15](https://www.postgresql.org/)** - Primary database
 - **[Prisma 6.12.0](https://www.prisma.io/)** - Database ORM and migrations
-- **[Socket.IO](https://socket.io/)** - Real-time bidirectional communication
+- **[Socket.IO 4.8.1](https://socket.io/)** - Real-time bidirectional communication
 
 ### Authentication & File Handling
-- **[Clerk](https://clerk.com/)** - Authentication and user management
-- **[UploadThing](https://uploadthing.com/)** - File upload and storage service
+- **[Clerk 6.22.0](https://clerk.com/)** - Authentication and user management
+- **[UploadThing 7.7.3](https://uploadthing.com/)** - File upload and storage service
 
 ### State Management & Forms
 - **[Zustand 5.0.6](https://zustand-demo.pmnd.rs/)** - Lightweight state management
+- **[@tanstack/react-query 5.84.0](https://tanstack.com/query)** - Powerful data fetching and state synchronization
 - **[React Hook Form 7.58.1](https://react-hook-form.com/)** - Performant forms
 - **[Zod 3.25.67](https://zod.dev/)** - Schema validation
+
+### Utilities & Libraries
+- **[Axios 1.10.0](https://axios-http.com/)** - HTTP client
+- **[date-fns 4.1.0](https://date-fns.org/)** - Date manipulation library
+- **[React Markdown 10.1.0](https://github.com/remarkjs/react-markdown)** - Markdown rendering
+- **[UUID 11.1.0](https://github.com/uuidjs/uuid)** - UUID generation
 
 ## 📋 Prerequisites
 
@@ -199,16 +206,13 @@ npx prisma migrate dev     # Create and apply migrations
 discord-clone/
 ├── app/                          # Next.js App Router
 │   ├── (auth)/                  # Authentication routes (grouped)
-│   │   ├── (routes)/           # Sign-in/Sign-up pages
-│   │   └── layout.tsx          # Auth layout
 │   ├── (invite)/               # Server invite handling
 │   ├── (main)/                 # Main application routes
-│   │   ├── (routes)/          # Server and channel pages
-│   │   └── layout.tsx         # Main app layout
 │   ├── (setup)/               # Initial user setup
 │   ├── api/                   # API routes
 │   │   ├── channels/          # Channel management
 │   │   ├── members/           # Member management
+│   │   ├── messages/          # Message operations
 │   │   ├── servers/           # Server operations
 │   │   └── uploadthing/       # File upload handling
 │   ├── globals.css            # Global styles
@@ -219,12 +223,21 @@ discord-clone/
 │   ├── navigations/           # Navigation components
 │   ├── providers/             # Context providers
 │   ├── server/                # Server-specific UI
-│   └── ui/                    # Reusable UI components
+│   ├── ui/                    # Reusable UI components
+│   └── *.tsx                  # Shared components (avatar, emoji picker, etc.)
 ├── hooks/                       # Custom React hooks
+│   ├── use-chat-query.ts      # Chat data fetching
+│   ├── use-chat-socket.ts     # Real-time chat updates
+│   ├── use-modal-store.ts     # Modal state management
+│   └── use-origin.ts          # Origin URL hook
 ├── lib/                         # Utility libraries
+│   ├── conversation.ts        # Conversation helpers
+│   ├── current-profile.ts     # Profile utilities (App Router)
+│   ├── current-profile-pages.ts # Profile utilities (Pages Router)
 │   ├── db.ts                  # Database connection
-│   ├── utils.ts               # Helper functions
-│   └── uploadthing.ts         # File upload utilities
+│   ├── initial-profile.ts     # Initial profile setup
+│   ├── uploadthing.ts         # File upload utilities
+│   └── utils.ts               # Helper functions
 ├── pages/api/socket/            # Socket.IO API routes
 ├── prisma/                      # Database schema and migrations
 │   ├── migrations/            # Database migrations
