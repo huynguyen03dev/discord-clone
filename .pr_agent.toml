@@ -1,6 +1,6 @@
 [config]
-model = "anthropic/gemini-3-pro-preview"
-fallback_models = ["anthropic/zai/glm-4.7"]
+model = "openai/gemini-3-pro-preview"
+fallback_models = ["openai/zai/glm-4.7"]
 custom_model_max_tokens = 8192
 
 [pr_reviewer]
