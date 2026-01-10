@@ -71,7 +71,6 @@ export const ChatItem = ({
   socketQuery
 }: ChatItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const params = useParams();
   const router = useRouter();
 
@@ -98,7 +97,7 @@ export const ChatItem = ({
     }, [])
 
   const { onOpen } = useModal();
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -199,7 +198,7 @@ export const ChatItem = ({
           )}
           {!fileUrl && isEditing && (
             <Form {...form}>
-              <form 
+              <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="flex items-center w-full gap-x-2 pt-2"
               >
@@ -210,7 +209,7 @@ export const ChatItem = ({
                     <FormItem className="flex-1">
                       <FormControl>
                         <div className="relative w-full">
-                          <Input 
+                          <Input
                             disabled={isLoading}
                             className="p-2 bg-zinc-200/90 dark:bg-zinc-700/75 border-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
                             placeholder="Edited message"
@@ -219,7 +218,7 @@ export const ChatItem = ({
                         </div>
                       </FormControl>
                     </FormItem>
-                  )} 
+                  )}
                 />
                 <Button disabled={isLoading} size="sm" variant="primary">
                   Save
