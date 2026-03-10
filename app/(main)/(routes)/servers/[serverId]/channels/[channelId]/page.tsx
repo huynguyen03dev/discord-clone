@@ -1,12 +1,12 @@
 import { ChatHeader } from "@/components/chat/chat-header";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatMessages } from "@/components/chat/chat-messages";
+import { MediaRoom } from "@/components/media-room-lazy";
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ChannelType } from "@prisma/client";
-import { MediaRoom } from "@/components/media-room";
 
 interface ChannelIdPageProps {
   params: {
