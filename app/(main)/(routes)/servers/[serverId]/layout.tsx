@@ -25,6 +25,21 @@ const ServerIdLayout = async ({ children, params }: {
           profileId: profile.id
         }
       }
+    },
+    include: {
+      channels: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
+      members: {
+        include: {
+          profile: true,
+        },
+        orderBy: {
+          role: "asc",
+        },
+      },
     }
   });
 
@@ -35,7 +50,7 @@ const ServerIdLayout = async ({ children, params }: {
   return (
     <div className="h-full">
       <div className="hidden md:!flex h-full w-60 z-20 flex-col fixed inset-y-0 ">
-        <ServerSidebar serverId={serverId} />
+        <ServerSidebar server={server} profileId={profile.id} />
       </div>
       <main className="h-full md:pl-60">
         <SocketProvider>

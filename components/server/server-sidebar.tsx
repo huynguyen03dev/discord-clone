@@ -1,6 +1,3 @@
-import { currentProfile } from "@/lib/current-profile";
-import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
 import { ServerHeader } from "@/components/server/server-header";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ServerSearch } from "./server-search";
@@ -11,9 +8,11 @@ import { ServerSection } from "./server-section";
 
 import { ServerChannel } from "./server-channel";
 import { ServerMember } from "./server-member";
+import { ServerWithChannelsMembersProfiles } from "@/types";
 
 interface ServerSidebarProps {
-  serverId: string;
+  server: ServerWithChannelsMembersProfiles;
+  profileId: string;
 }
 
 const iconMap = {
@@ -30,46 +29,15 @@ const roleIconMap = {
 
 
 
-export const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
-  const profile = await currentProfile();
+export const ServerSidebar = ({ server, profileId }: ServerSidebarProps) => {
 
-  if (!profile) {
-    return redirect("/");
-  }
+  const textChannels = server.channels.filter((channel) => channel.type === ChannelType.TEXT);
+  const audioChannels = server.channels.filter((channel) => channel.type === ChannelType.AUDIO);
+  const videoChannels = server.channels.filter((channel) => channel.type === ChannelType.VIDEO);
 
-  const server = await db.server.findUnique({
-    where: {
-      id: serverId,
-    },
-    include: {
-      channels: {
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      members: {
-        include: {
-          profile: true,
-        },
-        orderBy: {
-          role: "asc",
-        },
-      },
-    }
-  });
+  const members = server.members.filter((member) => member.profileId !== profileId);
 
-  const textChannels = server?.channels.filter((channel) => channel.type === ChannelType.TEXT);
-  const audioChannels = server?.channels.filter((channel) => channel.type === ChannelType.AUDIO);
-  const videoChannels = server?.channels.filter((channel) => channel.type === ChannelType.VIDEO);
-
-  const members = server?.members.filter((member) => member.profileId !== profile.id);
-
-
-  if (!server) {
-    return redirect("/");
-  }
-
-  const role = server.members.find((member) => member.profileId === profile.id)?.role;
+  const role = server.members.find((member) => member.profileId === profileId)?.role;
 
   return (
     <div className="flex h-full w-full flex-col text-primary bg-[#F2F3F5] dark:bg-[#2B2D31]">
