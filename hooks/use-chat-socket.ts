@@ -27,7 +27,7 @@ export const useChatSocket = ({
     useEffect(() => {
         if (!socket) return;
 
-        socket.on(updateKey, (message: MesssageWithMemberWithProfile) => {
+        const updateHandler = (message: MesssageWithMemberWithProfile) => {
             queryClient.setQueryData([queryKey], (oldData: any) => {
                 if (!oldData || !oldData.pages || oldData.pages.length === 0) {
                     return oldData;
@@ -50,9 +50,9 @@ export const useChatSocket = ({
                     pages: newData,
                 }
             })
-        });
+        };
 
-        socket.on(addKey, (message: MesssageWithMemberWithProfile) => {
+        const addHandler = (message: MesssageWithMemberWithProfile) => {
             queryClient.setQueryData([queryKey], (oldData: any) => {
                 if (!oldData || !oldData.pages || oldData.pages.length === 0) {
                     return {
@@ -60,7 +60,8 @@ export const useChatSocket = ({
                             {
                                 items: [message]
                             }
-                        ]
+                        ],
+                        pageParams: [undefined]
                     }
                 }
 
@@ -76,11 +77,14 @@ export const useChatSocket = ({
                     pages: newData,
                 }
             })
-        });
+        };
+
+        socket.on(updateKey, updateHandler);
+        socket.on(addKey, addHandler);
 
         return () => {
-            socket.off(updateKey);
-            socket.off(addKey);
+            socket.off(updateKey, updateHandler);
+            socket.off(addKey, addHandler);
         }
     }, [socket, queryClient, addKey, updateKey, queryKey]);
 }

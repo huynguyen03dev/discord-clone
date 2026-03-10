@@ -34,6 +34,9 @@ const ChannelIdPage = async ({ params }: ChannelIdPageProps) => {
       serverId: serverId,
       profileId: profile.id,
     },
+    include: {
+      profile: true,
+    },
   });
 
   if (!channel || !member) {
@@ -71,6 +74,8 @@ const ChannelIdPage = async ({ params }: ChannelIdPageProps) => {
               channelId: channelId,
               serverId: serverId,
             }}
+            chatId={channel.id}
+            member={member}
           />
         </>
       )}

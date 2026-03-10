@@ -27,10 +27,9 @@ import {
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/file-upload";
 import { useModal } from "@/hooks/use-modal-store";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
-
-
   fileUrl: z.string().min(1, {
     message: "Attachment is required",
   }),
@@ -39,6 +38,7 @@ const formSchema = z.object({
 
 export const MessageFileModal = () => {
   const { isOpen, onClose, type, data } = useModal();
+  const queryClient = useQueryClient();
 
   const isModalOpen = isOpen && type === "messageFile";
 
@@ -49,8 +49,8 @@ export const MessageFileModal = () => {
     },
   });
 
-  const isLoading = form.formState.isSubmitting;
-  const { apiUrl, query } = data;
+  const { apiUrl, query, chatId, member } = data;
+  const queryKey = chatId ? `chat:${chatId}` : "";
 
   const [uploadInfo, setUploadInfo] = useState<{
     fileName?: string;
@@ -58,32 +58,92 @@ export const MessageFileModal = () => {
     fileSize?: number;
   } | null>(null);
 
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
+  const { mutate: sendFile, isPending } = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
       const url = qs.stringifyUrl({
         url: apiUrl || "",
         query: query,
       });
-
-      await axios.post(url, {
+      return axios.post(url, {
         ...values,
         content: values.fileUrl,
         fileName: uploadInfo?.fileName,
         fileMimeType: uploadInfo?.fileMimeType,
         fileSize: uploadInfo?.fileSize,
       });
+    },
+    onMutate: async (values) => {
+      if (!queryKey || !member) {
+        return {};
+      }
 
+      await queryClient.cancelQueries({ queryKey: [queryKey] });
+
+      const previousData = queryClient.getQueryData([queryKey]);
+
+      const optimisticMessage = {
+        id: `optimistic-${Date.now()}`,
+        content: values.fileUrl,
+        fileUrl: values.fileUrl,
+        fileName: uploadInfo?.fileName || null,
+        fileMimeType: uploadInfo?.fileMimeType || null,
+        fileSize: uploadInfo?.fileSize || null,
+        memberId: member.id,
+        channelId: query?.channelId || null,
+        conversationId: query?.conversationId || null,
+        deleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        member: {
+          ...member,
+          profile: member.profile,
+        },
+      };
+
+      queryClient.setQueryData([queryKey], (oldData: any) => {
+        if (!oldData || !oldData.pages || oldData.pages.length === 0) {
+          return {
+            pages: [{ items: [optimisticMessage] }],
+            pageParams: [undefined],
+          };
+        }
+
+        const newPages = [...oldData.pages];
+        newPages[0] = {
+          ...newPages[0],
+          items: [optimisticMessage, ...newPages[0].items],
+        };
+
+        return {
+          ...oldData,
+          pages: newPages,
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (_err, _values, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData([queryKey], context.previousData);
+      }
+    },
+    onSettled: () => {
+      if (queryKey) {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+      }
       handleClose();
-    } catch (error) {
-      console.log(error);
-    }
-  }
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    sendFile(values);
+  };
 
   const handleClose = () => {
     form.reset();
+    setUploadInfo(null);
     onClose();
-  }
+  };
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -122,7 +182,7 @@ export const MessageFileModal = () => {
               </div>
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button disabled={isLoading} variant="primary">
+              <Button disabled={isPending} variant="primary">
                 Send
               </Button>
             </DialogFooter>
