@@ -1,29 +1,26 @@
 "use client";
 
+import { memo, useCallback, useState } from "react";
+import dynamic from "next/dynamic";
 import { FileKind, Member, MemberRole, Profile } from "@prisma/client";
 import { UserAvatar } from "../user-avatar";
-import { Edit, FileIcon, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
+import { Edit, FileIcon, Loader2, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
 import { ActionTooltip } from "../action-tooltip";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRouter, useParams } from "next/navigation";
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "@/components/ui/form";
-
-import * as z from "zod";
-import axios from "axios"
-import qs from "query-string";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useModal } from "@/hooks/use-modal-store";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+
+const ChatItemEditForm = dynamic(
+  () => import("./chat-item-edit-form"),
+  {
+    loading: () => (
+      <div className="flex items-center gap-x-2 pt-2">
+        <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />
+      </div>
+    ),
+  }
+);
 
 interface ChatItemProps {
   id: string;
@@ -50,11 +47,8 @@ const roleIconMap = {
   "ADMIN": <ShieldAlert className="h-4 w-4 ml-2 text-rose-500" />,
 }
 
-const formSchema = z.object({
-  content: z.string().min(1),
-});
 
-export const ChatItem = ({
+const ChatItemComponent = ({
   id,
   content,
   timestamp,
@@ -82,50 +76,12 @@ export const ChatItem = ({
     router.push(`/servers/${params?.serverId}/conversations/${member.id}`);
   }
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsEditing(false);
-      }
-    };
-
-      window.addEventListener("keydown", handleKeyDown);
-
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-      }
-    }, [])
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false);
+  }, []);
 
   const { onOpen } = useModal();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      content: content,
-    },
-  });
-
-  const isLoading = form.formState.isSubmitting;
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const url = qs.stringifyUrl({
-        url: `${socketUrl}/${id}`,
-        query: socketQuery
-      })
-
-      await axios.patch(url, values);
-      setIsEditing(false);
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  useEffect(() => {
-    form.reset({
-      content: content,
-    })
-  }, [form, content]);
 
   const isAdmin = currentMember.role === MemberRole.ADMIN;
   const isModerator = currentMember.role === MemberRole.MODERATOR;
@@ -197,37 +153,13 @@ export const ChatItem = ({
             </p>
           )}
           {!fileUrl && isEditing && (
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="flex items-center w-full gap-x-2 pt-2"
-              >
-                <FormField
-                  control={form.control}
-                  name="content"
-                  render={ ({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <div className="relative w-full">
-                          <Input
-                            disabled={isLoading}
-                            className="p-2 bg-zinc-200/90 dark:bg-zinc-700/75 border-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
-                            placeholder="Edited message"
-                          {...field}
-                        />
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <Button disabled={isLoading} size="sm" variant="primary">
-                  Save
-                </Button>
-              </form>
-              <span className="text-[10px] mt-1 text-zinc-400">
-                Press escape to cancel, enter to save
-              </span>
-            </Form>
+            <ChatItemEditForm
+              content={content}
+              id={id}
+              socketUrl={socketUrl}
+              socketQuery={socketQuery}
+              onCancel={handleCancelEdit}
+            />
           )}
         </div>
       </div>
@@ -255,3 +187,5 @@ export const ChatItem = ({
     </div>
   );
 }
+
+export const ChatItem = memo(ChatItemComponent);
