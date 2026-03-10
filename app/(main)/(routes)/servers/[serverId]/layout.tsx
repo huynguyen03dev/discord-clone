@@ -2,6 +2,8 @@ import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { SocketProvider } from "@/components/providers/socket-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
 import { ServerSidebar } from "@/components/server/server-sidebar";
 
 const ServerIdLayout = async ({ children, params }: {
@@ -36,7 +38,11 @@ const ServerIdLayout = async ({ children, params }: {
         <ServerSidebar serverId={serverId} />
       </div>
       <main className="h-full md:pl-60">
-        {children}
+        <SocketProvider>
+          <QueryProvider>
+            {children}
+          </QueryProvider>
+        </SocketProvider>
       </main>
     </div>
   )
