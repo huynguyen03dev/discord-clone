@@ -31,6 +31,9 @@ const roleIconMap = {
 
 export const ServerSidebar = ({ server, profileId }: ServerSidebarProps) => {
 
+  if (!server) {
+    return null;
+  }
   const textChannels = server.channels.filter((channel) => channel.type === ChannelType.TEXT);
   const audioChannels = server.channels.filter((channel) => channel.type === ChannelType.AUDIO);
   const videoChannels = server.channels.filter((channel) => channel.type === ChannelType.VIDEO);
