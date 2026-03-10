@@ -1,5 +1,6 @@
 import qs from "query-string";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useRef, useEffect } from "react";
 
 import { useSocket } from "@/components/providers/socket-provider";
 
@@ -17,6 +18,13 @@ export const useChatQuery = ({
   paramValue
 }: ChatQueryProps) => {
   const { isConnected } = useSocket();
+  const backoffRef = useRef(2000);
+
+  useEffect(() => {
+    if (isConnected) {
+      backoffRef.current = 2000;
+    }
+  }, [isConnected]);
 
   const fetchMessages = async ({ pageParam = undefined }) => {
     const url = qs.stringifyUrl({
@@ -42,7 +50,13 @@ export const useChatQuery = ({
     queryFn: fetchMessages,
     getNextPageParam: (lastPage) => lastPage?.nextCursor,
     initialPageParam: undefined,
-    refetchInterval: isConnected ? false : 1000
+    refetchInterval: isConnected
+      ? false
+      : () => {
+          const current = backoffRef.current;
+          backoffRef.current = Math.min(current * 2, 30000);
+          return current;
+        }
   });
 
   return {

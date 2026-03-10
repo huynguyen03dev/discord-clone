@@ -31,6 +31,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const socketInstance = new (ClientIO as any)(process.env.NEXT_PUBLIC_SITE_URL!, {
       path: "/api/socket/io",
       addTrailingSlash: false,
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 30000,
+      reconnectionAttempts: Infinity,
     });
 
     socketInstance.on("connect", () => {
