@@ -1,6 +1,7 @@
 import React from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { vi } from "vitest";
 
 vi.mock("@clerk/nextjs", () => ({
@@ -45,11 +46,21 @@ function createTestQueryClient() {
   });
 }
 
+// Provider tree mirrors production (app/layout.tsx):
+// - ClerkProvider: mocked at module level (vi.mock above)
+// - ThemeProvider: mocked at module level (vi.mock above)
+// - QueryClientProvider: real, with retry disabled for deterministic tests
+// - TooltipProvider: real, required by Radix tooltip components
+// Excluded:
+// - ModalProvider: Zustand stores work without providers; modals test their own state
+// - SocketProvider: not in root layout; mocked separately when needed
 function AllProviders({ children }: { children: React.ReactNode }) {
   const queryClient = createTestQueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <TooltipProvider>
+        {children}
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }
