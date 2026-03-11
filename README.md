@@ -200,6 +200,56 @@ npx prisma migrate dev     # Create and apply migrations
 - **TypeScript** - Real-time type checking
 - **ESLint** - Code quality and consistency
 
+## 🧪 Testing
+
+This project includes a comprehensive test suite with unit tests, component tests, and end-to-end tests.
+
+### Running Tests
+
+```bash
+# Run all unit & component tests
+npm test -- --run
+
+# Run tests in watch mode
+npm test
+
+# Run tests with coverage report
+npm run test:coverage -- --run
+
+# Run end-to-end tests (requires running dev server + Clerk test credentials)
+npm run test:e2e
+
+# Run E2E tests with interactive UI
+npm run test:e2e:ui
+```
+
+### Test Structure
+
+| Layer | Framework | Location | Count |
+|-------|-----------|----------|-------|
+| Unit tests | Vitest | `lib/__tests__/`, `hooks/__tests__/` | 37 tests |
+| API route tests | Vitest | `app/api/**/__tests__/`, `pages/api/**/__tests__/` | 101 tests |
+| Component tests | Vitest + React Testing Library | `components/**/__tests__/` | 69 tests |
+| E2E tests | Playwright | `e2e/*.spec.ts` | 18 tests |
+
+### Test Configuration
+
+- **Vitest** — configured in `vitest.config.ts` with jsdom environment, path aliases, and global test utilities from `test-utils/`
+- **Playwright** — configured in `playwright.config.ts` with Chromium, Clerk authentication via `@clerk/testing`, and auto-start dev server
+
+### E2E Test Setup
+
+E2E tests require Clerk test credentials. Copy `.env.test.example` and fill in your values:
+
+```bash
+cp .env.test.example .env.test
+```
+
+Required variables:
+- `CLERK_TESTING_TOKEN` — Clerk testing API token
+- `E2E_CLERK_USER_USERNAME` / `E2E_CLERK_USER_PASSWORD` — primary test user
+- `E2E_CLERK_USER_2_USERNAME` / `E2E_CLERK_USER_2_PASSWORD` — secondary test user (for invite/member tests)
+
 ## 📁 Project Structure
 
 ```
@@ -330,7 +380,7 @@ We welcome contributions to the Discord Clone project! Here's how you can help:
 
 - **Code Style:** Follow the existing code style and use ESLint
 - **TypeScript:** Maintain type safety throughout the codebase
-- **Testing:** Add tests for new features (when test suite is available)
+- **Testing:** Add tests for new features using Vitest (unit/component) or Playwright (E2E)
 - **Documentation:** Update documentation for significant changes
 - **Commits:** Use clear, descriptive commit messages
 
