@@ -131,7 +131,7 @@ export const ChatMessages = ({
                 fileSize={message.fileSize}
                 fileKind={message.fileKind}
                 deleted={message.deleted}
-                isUpdated={message.updatedAt !== message.createdAt}
+                isUpdated={new Date(message.updatedAt).getTime() - new Date(message.createdAt).getTime() > 1000}
                 socketUrl={socketUrl}
                 socketQuery={socketQuery}
               />
