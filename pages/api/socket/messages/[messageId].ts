@@ -14,16 +14,11 @@ export default async function handler(
   }
 
   try {
-    const profile = await currentProfilePages(req);
     const { messageId, channelId, serverId } = req.query;
     const { content } = req.body;
 
     console.log(req.query);
     console.log(req.body);
-
-    if (!profile) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
 
     if (!serverId) {
       return res.status(400).json({ error: "Server ID is missing" });
@@ -31,6 +26,12 @@ export default async function handler(
 
     if (!channelId) {
       return res.status(400).json({ error: "Channel ID is missing" });
+    }
+
+    const profile = await currentProfilePages(req);
+
+    if (!profile) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const [server, channel, member] = await Promise.all([

@@ -14,19 +14,20 @@ export default async function handler(
   }
 
   try {
-    const profile = await currentProfilePages(req);
     const { directMessageId, conversationId } = req.query;
     const { content } = req.body;
 
     console.log(req.query);
     console.log(req.body);
 
-    if (!profile) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
     if (!conversationId) {
       return res.status(400).json({ error: "Conversation ID is missing" });
+    }
+
+    const profile = await currentProfilePages(req);
+
+    if (!profile) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const conversation = await db.conversation.findFirst({
