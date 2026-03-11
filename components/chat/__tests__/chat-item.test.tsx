@@ -57,11 +57,20 @@ vi.mock("@/components/action-tooltip", () => ({
   }: {
     label: string;
     children: React.ReactNode;
-  }) => (
-    <div data-testid={`tooltip-${label}`}>
-      {children}
-    </div>
-  ),
+  }) => {
+    const child = children as React.ReactElement | null;
+    const onClick = child?.props?.onClick;
+    return (
+      <div
+        data-testid={`tooltip-${label}`}
+        role={onClick ? "button" : undefined}
+        aria-label={label}
+        onClick={onClick}
+      >
+        {children}
+      </div>
+    );
+  },
 }));
 
 vi.mock("../chat-item-edit-form", () => ({
@@ -133,10 +142,10 @@ describe("ChatItem", () => {
 
     renderWithProviders(<ChatItem {...defaultProps} />);
 
-    const editButton = screen.getByTestId("tooltip-Edit").querySelector("svg");
+    const editButton = screen.getByRole("button", { name: "Edit" });
     expect(editButton).toBeInTheDocument();
 
-    await user.click(editButton!);
+    await user.click(editButton);
 
     await waitFor(() => {
       expect(screen.getByTestId("edit-form")).toBeInTheDocument();
@@ -183,9 +192,9 @@ describe("ChatItem", () => {
       />
     );
 
-    const link = screen.getByText("document.pdf");
+    const link = screen.getByRole("link", { name: "document.pdf" });
     expect(link).toBeInTheDocument();
-    expect(link.closest("a")).toHaveAttribute(
+    expect(link).toHaveAttribute(
       "href",
       "https://example.com/doc.pdf"
     );
