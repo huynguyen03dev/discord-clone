@@ -69,6 +69,7 @@ model Member {
 
   @@index([profileId])
   @@index([serverId])
+  @@index([profileId, serverId])
 }
 
 enum ChannelType {
