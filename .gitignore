@@ -44,3 +44,6 @@ next-env.d.ts
 /lib/generated/prisma
 .cursor
 .vscode
+# playwright
+playwright-report/
+test-results/
