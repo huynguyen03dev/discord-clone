@@ -25,19 +25,9 @@ export default async function handler(
   }
 
   try {
-    const profile = await currentProfilePages(req);
-    console.log("[MESSAGES_POST] Profile:", profile ? "Found" : "Not found");
-
     const { content, fileUrl } = req.body;
     const { conversationId } = req.query;
-
     const { fileName, fileMimeType, fileSize } = req.body;
-
-    const fileKind = inferKindFromMime(fileMimeType);
-
-    if (!profile) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
 
     if (!conversationId) {
       return res.status(400).json({ error: "Conversation ID is missing" });
@@ -45,6 +35,15 @@ export default async function handler(
 
     if (!content) {
       return res.status(400).json({ error: "Content is missing" });
+    }
+
+    const fileKind = inferKindFromMime(fileMimeType);
+
+    const profile = await currentProfilePages(req);
+    console.log("[MESSAGES_POST] Profile:", profile ? "Found" : "Not found");
+
+    if (!profile) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
     
     const conversation = await db.conversation.findFirst({
