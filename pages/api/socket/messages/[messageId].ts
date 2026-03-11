@@ -33,36 +33,42 @@ export default async function handler(
       return res.status(400).json({ error: "Channel ID is missing" });
     }
 
-    const server = await db.server.findFirst({
-      where: {
-        id: serverId as string,
-        members: {
-          some: {
-            profileId: profile.id
-          }
-        }
-      },
-      include: {
-        members: true
-      }
-    })
+    const [server, channel, member] = await Promise.all([
+      db.server.findFirst({
+        where: {
+          id: serverId as string,
+          members: {
+            some: {
+              profileId: profile.id,
+            },
+          },
+        },
+      }),
+      db.channel.findFirst({
+        where: {
+          id: channelId as string,
+          serverId: serverId as string,
+        },
+      }),
+      db.member.findFirst({
+        where: {
+          serverId: serverId as string,
+          profileId: profile.id,
+        },
+      }),
+    ]);
 
     if (!server) {
       return res.status(404).json({ error: "Server not found" });
     }
 
-    const channel = await db.channel.findFirst({
-      where: {
-        id: channelId as string,
-        serverId: serverId as string,
-      }
-    })
-
     if (!channel) {
       return res.status(404).json({ error: "Channel not found" });
     }
 
-    const member = server.members.find((member) => member.profileId === profile.id);
+    if (!member) {
+      return res.status(404).json({ error: "Member not found" });
+    }
 
     let message = await db.message.findFirst({
       where: {
