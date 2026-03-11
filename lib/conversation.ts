@@ -2,7 +2,12 @@ import { db } from "@/lib/db";
 
 export const getOrCreateConversation = async (memberOneId: string, memberTwoId: string) => {
   try {
-    let conversation = await findConversation(memberOneId, memberTwoId) || await findConversation(memberTwoId, memberOneId);
+    const [conversation1, conversation2] = await Promise.all([
+      findConversation(memberOneId, memberTwoId),
+      findConversation(memberTwoId, memberOneId),
+    ]);
+
+    let conversation = conversation1 || conversation2;
 
     if (!conversation) {
       conversation = await createNewConversation(memberOneId, memberTwoId);
