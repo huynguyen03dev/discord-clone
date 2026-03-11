@@ -9,7 +9,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./test-utils/setup.ts"],
     include: ["**/__tests__/**/*.test.{ts,tsx}"],
-    exclude: ["e2e/**", "node_modules/**"],
+    exclude: ["e2e/**", "node_modules/**", ".hive/**"],
     coverage: {
       provider: "v8",
       include: ["app/api/**", "components/**", "hooks/**", "lib/**"],
