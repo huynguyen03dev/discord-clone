@@ -22,6 +22,11 @@ export const NavigationSidebar = async () => {
         },
       },
     },
+    select: {
+      id: true,
+      name: true,
+      imageUrl: true,
+    },
   });
 
   return (
