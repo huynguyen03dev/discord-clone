@@ -103,7 +103,6 @@ export const ServerSidebar = ({ server, profileId }: ServerSidebarProps) => {
               <ServerChannel 
                 key={channel.id}
                 channel={channel}
-                server={server}
                 role={role}
               />
             ))}
@@ -121,7 +120,6 @@ export const ServerSidebar = ({ server, profileId }: ServerSidebarProps) => {
               <ServerChannel 
                 key={channel.id}
                 channel={channel}
-                server={server}
                 role={role}
               />
             ))}
@@ -139,7 +137,6 @@ export const ServerSidebar = ({ server, profileId }: ServerSidebarProps) => {
               <ServerChannel 
                 key={channel.id}
                 channel={channel}
-                server={server}
                 role={role}
               />
             ))}
@@ -157,7 +154,6 @@ export const ServerSidebar = ({ server, profileId }: ServerSidebarProps) => {
               <ServerMember 
                 key={member.id}
                 member={member}
-                server={server}
               />
             ))}
           </div>

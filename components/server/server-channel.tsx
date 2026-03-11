@@ -2,7 +2,6 @@
 
 import { memo } from "react";
 import { Channel, ChannelType, MemberRole } from "@prisma/client";
-import { ServerWithMembersWithProfiles } from "@/types";
 import { Edit, Hash, Lock, Mic, Trash, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
@@ -12,7 +11,6 @@ import { ModalType, useModal } from "@/hooks/use-modal-store";
 
 interface ServerChannelProps {
   channel: Channel;
-  server: ServerWithMembersWithProfiles;
   role?: MemberRole;
 }
 
@@ -22,7 +20,7 @@ const iconMap = {
   [ChannelType.VIDEO]: Video,
 }
 
-const ServerChannelComponent = ({ channel, server, role }: ServerChannelProps) => {
+const ServerChannelComponent = ({ channel, role }: ServerChannelProps) => {
   const params = useParams();
   const router = useRouter();
   const { onOpen } = useModal();
