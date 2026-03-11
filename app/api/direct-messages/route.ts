@@ -26,45 +26,23 @@ export async function GET(
 
     let messages: DirectMessage[] = [];
 
-    if (cursor) {
-      messages = await db.directMessage.findMany({
-        take: MESSAGES_BATCH,
-        skip: 1,
-        cursor: {
-          id: cursor,
-        },
-        where: {
-          conversationId,
-        },
-        include: {
-          member: {
-            include: {
-              profile: true,
-            },
+    messages = await db.directMessage.findMany({
+      take: MESSAGES_BATCH,
+      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+      where: {
+        conversationId,
+      },
+      include: {
+        member: {
+          include: {
+            profile: true,
           },
         },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-    } else {
-      messages = await db.directMessage.findMany({
-        take: MESSAGES_BATCH,
-        where: {
-          conversationId,
-        },
-        include: {
-          member: {
-            include: {
-              profile: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-    }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
     let nextCursor = null;
 
