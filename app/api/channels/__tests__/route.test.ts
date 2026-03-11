@@ -93,16 +93,18 @@ describe("POST /api/channels", () => {
     expect(await res.text()).toBe("Server ID is required");
   });
 
-  it("blocks GUEST role via Prisma where clause", async () => {
+  it("returns null when Prisma where clause filters out non-admin member", async () => {
     mockCurrentProfile();
-    mockDb.server.update.mockRejectedValueOnce(new Error("Record not found"));
+    mockDb.server.update.mockResolvedValueOnce(null);
 
     const req = makeRequest(
       { name: "test-channel", type: ChannelType.TEXT },
       serverFixture.id
     );
     const res = await POST(req);
+    const json = await res.json();
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(200);
+    expect(json).toBeNull();
   });
 });
