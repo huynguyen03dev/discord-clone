@@ -6,6 +6,11 @@ import { redirect } from "next/navigation";
 const SetupPage = async () => {
   const profile = await initialProfile();
 
+  if (!profile || !("id" in profile)) {
+    console.error("[SETUP_PAGE] No valid profile returned from initialProfile");
+    return null;
+  }
+
   const server = await db.server.findFirst({
     where: {
       members: {
