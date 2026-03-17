@@ -36,3 +36,6 @@ jobs:
           model: proxy/openai/gpt-5.4(high)
           use_github_token: true
           share: false
+          prompt: |
+            Start every GitHub reply with the markdown heading: # OpenCode Agent
+            Keep the rest of the response natural, concise, and task-appropriate.
