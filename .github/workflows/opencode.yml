@@ -44,10 +44,19 @@ jobs:
           use_github_token: true
           share: false
           prompt: |
-            Review this pull request:
-            - Focus on security vulnerabilities (XSS, injection, auth issues)
-            - Focus on performance issues (unnecessary re-renders, N+1 queries)
-            - Check Next.js/React best practices (proper use of hooks, server/client boundaries)
-            - Check Prisma query optimization and proper error handling
-            - Check TypeScript type safety
-            - Focus only on actionable problems, not praise
+            Review this pull request.
+
+            Focus on:
+            - Security vulnerabilities (XSS, injection, auth issues)
+            - Performance issues (unnecessary re-renders, N+1 queries)
+            - Next.js/React best practices (proper use of hooks, server/client boundaries)
+            - Prisma query optimization and proper error handling
+            - TypeScript type safety
+
+            Output format:
+            - Start with the heading: # OpenCode Review
+            - Then provide a one-line summary with the number of actionable issues found
+            - Group findings by severity: High, Medium, Low
+            - For each finding, use this format: `- file:line — issue — recommended fix`
+            - Only include actionable problems
+            - Do not include praise, filler, or long introductions
