@@ -9,12 +9,12 @@
         "baseURL": "{env:OPENAI_API_BASE}"
       },
       "models": {
-        "openai/gpt-5.4(high)": {
-          "name": "openai/gpt-5.4(high)"
+        "openai/gpt-5.2-codex(high)": {
+          "name": "openai/gpt-5.2-codex(high)"
         }
       }
     }
   },
-  "model": "proxy/openai/gpt-5.4(high)",
+  "model": "proxy/openai/gpt-5.2-codex(high)",
   "share": "disabled"
 }
