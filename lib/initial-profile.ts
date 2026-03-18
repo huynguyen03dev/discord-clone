@@ -1,27 +1,23 @@
+import type { Profile } from "@prisma/client";
 import { currentUser, auth } from "@clerk/nextjs/server";
 
 import { db } from "@/lib/db";
 
-export const initialProfile = async() => {
+export const initialProfile = async (): Promise<Profile> => {
     const user = await currentUser();
 
     if (!user) {
         const { redirectToSignIn } = await auth();
-        return redirectToSignIn();
+        redirectToSignIn();
+        throw new Error("Redirect to sign-in did not complete.");
     }
 
-    const profile = await db.profile.findUnique({
+    const profile = await db.profile.upsert({
         where: {
             userId: user.id
-        }
-    });
-
-    if (profile) {
-        return profile;
-    }
-
-    const newProfile = await db.profile.create({
-        data: {
+        },
+        update: {},
+        create: {
             userId: user.id,
             name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.id,
             imageUrl: user.imageUrl,
@@ -29,5 +25,5 @@ export const initialProfile = async() => {
         }
     });
     
-    return newProfile;
+    return profile;
 }
