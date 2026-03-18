@@ -55,11 +55,11 @@ jobs:
             - Only comment on issues that are worth fixing before merge. Skip speculative concerns and low-value nits.
             - Do not use headings, issue counts, severity sections, or rigid templates.
             - Do not repeat file names or line numbers in the comment text unless it adds useful clarity; GitHub already shows the location.
-            - For each finding, briefly explain:
-              1) what the issue is,
-              2) why it matters in this code,
-              3) the smallest reasonable fix.
-            - Keep comments concise, usually 2-4 sentences.
+            - For each finding, briefly say what is wrong, why it matters here, and the smallest reasonable fix.
+            - Lead with the issue or impact rather than restating the changed line.
+            - Mention only the smallest relevant symbol or function name; avoid pasting full code snippets from the diff unless needed for clarity.
+            - Keep each finding concise, usually 1 short paragraph (2-4 sentences).
+            - If there are multiple findings in one review comment, keep them as separate short paragraphs.
             - Be specific to the diff. Avoid generic advice, filler, and canned praise.
             - If a point is minor or optional, say that plainly instead of overstating it.
             - Prefer a few high-signal comments over many shallow ones.
